@@ -1,3 +1,7 @@
+import path
+
+oo = 1e9
+
 # this is the algorithm code for the alarm hub
 
 class Alarm:
@@ -5,28 +9,37 @@ class Alarm:
     def __init__(self, id):
         self.id = id
         self.left = 0
+        self.leftDistance = oo
         self.right = 0
+        self.rightDistance = oo
         self.middle = 0
+        self.middleDistance = oo
         self.leftLED = 0
         self.rightLED = 0
         self.middleLED = 0
         self.buzzer = 0
         self.nextAlarm = 0
+        self.nearestAlarms = []
 
     # setters for alarms
-    def setLeft(self, alarm):
+    def setLeft(self, alarm, distance):
         self.left = alarm
+        self.leftDistance = distance
 
-    def setRight(self, alarm):
+    def setRight(self, alarm, distance):
         self.right = alarm
+        self.rightDistance = distance
 
-    def setMiddle(self, alarm):
+    def setMiddle(self, alarm, distance):
         self.middle = alarm
+        self.middleDistance = distance
 
-    def setAll(self, left, right, middle):
-        self.setLeft(left)
-        self.setRight(right)
-        self.setMiddle(middle)
+
+    def setAll(self, left, right, middle, distL, distR, distM):
+        self.setLeft(left, distL)
+        self.setRight(right, distR)
+        self.setMiddle(middle, distM)
+        self.nearestAlarms = [left, right, middle]
 
     def setNext(self, alarm):
         self.nextAlarm = alarm
@@ -35,11 +48,20 @@ class Alarm:
     def getLeft(self):
         return self.left
 
+    def getLeftDistance(self):
+        return self.leftDistance
+
     def getRight(self):
         return self.right
 
+    def getRightDistance(self):
+        return self.rightDistance
+
     def getMiddle(self):
         return self.middle
+
+    def getMiddleDistance(self):
+        return self.middleDistance
 
     def getID(self):
         return self.id
@@ -47,8 +69,26 @@ class Alarm:
     def getNext(self):
         return self.nextAlarm
 
-def setPath(alarm, length, alarmFrom):
+    def getNearestAlarms(self):
+        return self.nearestAlarms
 
+    # Returns the distance between the current alarm and an other alarm,
+    # if it's adjacent, we should consider expanding this to any alarm
+    def getDistance(self, otherAlarm):
+        alarms = self.getNearestAlarms()
+        if otherAlarm == alarms[0]:
+            return self.getLeftDistance()
+        elif otherAlarm == alarms[1]:
+            return self.getRightDistance()
+        elif otherAlarm == alarms[2]:
+            return self.getMiddleDistance()
+        else:
+            print 'The alarm is not adjacent to the current alarm'
+            return
+
+
+
+def setPath(alarm, length, alarmFrom):
 
 
     if(alarm == 0) or (alarm.getID() == 0):
@@ -111,7 +151,9 @@ def setPath(alarm, length, alarmFrom):
         return middlePath
 
 
-# follows a path until it gets to a wall or exit
+# follows a path until it gets to a wall or exit, we
+# need to create a path class, to pass the previously
+# visited alarms, and measure length
 def followPath(alarm):
 
     if (alarm == 0):
@@ -120,14 +162,27 @@ def followPath(alarm):
     if(alarm.getID() == 0):
         return
 
-    print alarm.getID(),
+    print alarm.getID()
 
-    # don't wanna go into a wall, buddy
+    # don't wanna go into a wall, buddy (you right)
     if(alarm.getNext() == 0):
         return
 
     # follow the next alarm in the path
     followPath(alarm.getNext())
+
+
+#def followPath(alarm, length):
+
+    #if alarm == 0:
+    #    return
+
+    #if alarm.getID() == 0:
+    #    return
+
+    #if alarm.getID() == "exit":
+    #    return
+
 
 
 def fireAlarm(alarm):
@@ -136,18 +191,15 @@ def fireAlarm(alarm):
     setPath(alarm.getRight(), 0, alarm)
     setPath(alarm.getMiddle(), 0, alarm)
 
-    print "Left path is: ",
-    followPath(alarm.getLeft())
-    print " "
-    print " "
-    print "Right path is: ",
-    followPath(alarm.getRight())
-    print " "
-    print " "
-    print "Middle path is: ",
-    followPath(alarm.getMiddle())
-    print " "
-    print " "
+    print "Left path is: ", followPath(alarm.getLeft())
+    print "It's distance is:\n"
+
+    print "Right path is: ", followPath(alarm.getRight())
+    print "It's distance is:\n"
+
+    print "Middle path is: ", followPath(alarm.getMiddle())
+    print "It's distance is:\n"
+
 
 # main function
 def main():
@@ -164,13 +216,15 @@ def main():
     exit3 = Alarm("exit")
 
     # initialize the connections from one alarm to another
-    alarm1.setAll(exit1, alarm2, 0)
-    alarm2.setAll(alarm1, alarm5, alarm3)
-    alarm3.setAll(alarm2, alarm4, 0)
-    alarm4.setAll(alarm3, exit2, 0)
-    alarm5.setAll(alarm2, exit3, 0)
+    alarm1.setAll(exit1, alarm2, 0, 4, 3, oo)
+    alarm2.setAll(alarm1, alarm5, alarm3, 3, 6, 4)
+    alarm3.setAll(alarm2, alarm4, 0, 4, 2, oo)
+    alarm4.setAll(alarm3, exit2, 0, 2, 3, oo)
+    alarm5.setAll(alarm2, exit3, 0, 6, 2, oo)
 
     fireAlarm(alarm3)
+
+    # print alarm5.getDistance(exit3)
 
 
 if __name__ == "__main__":
