@@ -1,5 +1,3 @@
-import path
-
 oo = 1e9
 
 # this is the algorithm code for the alarm hub
@@ -65,6 +63,7 @@ def setPath(alarm, length, alarmFrom):
 
 
     if(alarm.getID() == "exit"):
+
         return length + 1
 
     # base case
@@ -120,9 +119,7 @@ def setPath(alarm, length, alarmFrom):
         return middlePath
 
 
-# follows a path until it gets to a wall or exit, we
-# need to create a path class, to pass the previously
-# visited alarms, and measure length
+# follows a path until it gets to a wall or exit
 def followPath(alarm):
 
     if (alarm == 0):
@@ -144,9 +141,9 @@ def followPath(alarm):
 
 def fireAlarm(alarm):
     print "Setting off alarm " + str(alarm.getID())
-    setPath(alarm.getLeft(), 0, alarm)
-    setPath(alarm.getRight(), 0, alarm)
-    setPath(alarm.getMiddle(), 0, alarm)
+    leftPath = setPath(alarm.getLeft(), 0, alarm)
+    rightPath = setPath(alarm.getRight(), 0, alarm)
+    middlePath = setPath(alarm.getMiddle(), 0, alarm)
 
     print "Left path is: ", followPath(alarm.getLeft())
 
