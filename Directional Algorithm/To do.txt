@@ -1,0 +1,30 @@
+createPath 1.0 (features):
+
+- add and implement path object (list of alarms)
+
+- create allPOIs list of every point of interest
+	- right now alarms and exits are hardcoded into allAlarms list, use list properties to create alarms
+
+- add and implement visited array based on allPOIs
+
+- change Alarm class to (((Point of Interest))) class
+	- include "self.type" (string) property ("alarm", "exit")
+	- change allAlarms object name to all(((Point of Interest)))
+	- add IDs for self.type: "exit"
+
+- perform "revisits"
+
+- comment up code
+
+- create path module, with path helper classes
+
+- Issues:
+   X- Infinite loop when looking at connected alarms, due to what is marked as visited, alarms
+    just call each other back and forth
+    - First alarm visited not listed in path, not connected to other issue
+    - type "wall" appears as exit?
+    - when path is oo, cannot concatenate to list
+
+key:
+- ((( some text ))) -> working title/subject to change
+	

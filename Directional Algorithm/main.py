@@ -1,11 +1,14 @@
 oo = 1e9
-
+allPOIs = []
 # this is the algorithm code for the alarm hub
 
-class Alarm:
-    # constructor of an alarm
-    def __init__(self, id):
+# Ctrl-f "revisit" to find issues/potentially irrelevant code
+
+class PointOfInterest:
+    # constructor of an POI
+    def __init__(self, id, type):
         self.id = id
+        self.type = type
         self.left = 0
         self.right = 0
         self.middle = 0
@@ -13,29 +16,31 @@ class Alarm:
         self.rightLED = 0
         self.middleLED = 0
         self.buzzer = 0
-        self.nextAlarm = 0
-        self.nearestAlarms = []
+        self.nextPOI = 0 #revisit necessity of attribute
 
-    # setters for alarms
-    def setLeft(self, alarm):
-        self.left = alarm
+    # setters for POIs
+    def setLeft(self, POI):
+        self.left = POI
 
-    def setRight(self, alarm):
-        self.right = alarm
+    def setRight(self, POI):
+        self.right = POI
 
-    def setMiddle(self, alarm):
-        self.middle = alarm
+    def setMiddle(self, POI):
+        self.middle = POI
 
     def setAll(self, left, right, middle):
         self.setLeft(left)
         self.setRight(right)
         self.setMiddle(middle)
-        self.nearestAlarms = [left, right, middle]
 
-    def setNext(self, alarm):
-        self.nextAlarm = alarm
+    # revisit necessity and use of this function
+    def setNext(self, POI):
+        self.nextPOI = POI
 
-    # getters for alarms
+    def setVisited(self, boolean):
+        self.visited = boolean
+
+    # getters for POIs
     def getLeft(self):
         return self.left
 
@@ -48,134 +53,188 @@ class Alarm:
     def getID(self):
         return self.id
 
+    def getType(self):
+        return self.type
+
+    # revisit necessity and use of this function
     def getNext(self):
-        return self.nextAlarm
+        return self.nextPOI
 
-    def getNearestAlarms(self):
-        return self.nearestAlarms
+    def getVisited(self):
+        return self.visited
 
-
-def setPath(alarm, length, alarmFrom):
-
-
-    if(alarm == 0) or (alarm.getID() == 0):
-        return oo
+def resetVisited():
+    for POI in allPOIs:
+        POI.setVisited(False)
 
 
-    if(alarm.getID() == "exit"):
 
-        return length + 1
+# probably don't need "length" or POIFrom parameters revisit
+def setPath(POI, length, POIFrom, thisPath, visited):
+
+    print POI.getID()
+
+    if(POI.getType() == "wall") or (POI.getID() == 0):
+        return []
+
+    visited[POI.getID()] = True
+
+    if(POI.getType() == "exit"):
+        return [POI]
+
 
     # base case
-    if (alarm.getLeft() != 0) and (alarm.getLeft().getID() == "exit"):
-        alarm.setNext(alarm.getLeft())
-        return length + 1
-    elif (alarm.getRight() != 0) and (alarm.getRight().getID() == "exit"):
-        alarm.setNext(alarm.getRight())
-        return length + 1
-    elif (alarm.getMiddle() != 0) and (alarm.getMiddle().getID() == "exit"):
-        alarm.setNext(alarm.getMiddle())
-        return length + 1
+    if (POI.getLeft().getType() != "wall") and (POI.getLeft().getType() == "exit"):
+        POI.setNext(POI.getLeft())
+        # POI.getLeft().setVisited(True)
+        visited[POI.getLeft().getID()] = True
+        return [POI.getLeft()]
+    elif (POI.getRight().getType() != "wall") and (POI.getRight().getType() == "exit"):
+        POI.setNext(POI.getRight())
+        visited[POI.getRight().getID()] = True
+        return [POI.getRight()]
+    elif (POI.getMiddle().getType() != "wall") and (POI.getMiddle().getType() == "exit"):
+        POI.setNext(POI.getMiddle())
+        visited[POI.getMiddle().getID()] = True
+        return [POI.getMiddle()]
 
     # set the path lengths for the left direction
     # we do not want to go back the way we came so we have a check for that.
-    if(alarm.getLeft() != 0 and alarmFrom.getID() != alarm.getLeft().getID()):
-         leftPath = setPath(alarm.getLeft(), length, alarm) + 1
+    if(POI.getLeft().getType() != "wall" and visited[POI.getLeft().getID()] == False):
+        leftPath = setPath(POI.getLeft(), length, POI, thisPath, visited)
     else:
         leftPath = oo
+
+    #if(POI.getLeft() != 0 and POIFrom.getID() != POI.getLeft().getID()):
+    #     leftPath = setPath(POI.getLeft(), length, POI) + 1
+    #else:
+     #   leftPath = oo
+
 
 
     # set the path lengths for the right direction
     # we do not want to go back the way we came so we have a check for that.
-    if(alarm.getRight() != 0 and alarmFrom.getID() != alarm.getRight().getID()):
-        rightPath = setPath(alarm.getRight(), length, alarm) + 1
+    if(POI.getRight().getType() != "wall" and visited[POI.getRight().getID()] == False):
+         rightPath = setPath(POI.getRight(), length, POI, thisPath, visited)
     else:
         rightPath = oo
 
     # set the path lengths for the right direction
     # we do not want to go back the way we came so we have a check for that.
-    if(alarm.getMiddle() != 0 and alarmFrom.getID() != alarm.getMiddle().getID()):
-        middlePath = setPath(alarm.getMiddle(), length, alarm) + 1
+    if(POI.getMiddle().getType() != "wall" and visited[POI.getMiddle().getID()] == False):
+         middlePath = setPath(POI.getMiddle(), length, POI, thisPath, visited)
     else:
         middlePath = oo
 
+    leftLength = findPathLength(leftPath)
+    rightLength = findPathLength(rightPath)
+    middleLength = findPathLength(middlePath)
 
-    #find the minimum path, and set the next alarm
-    if((leftPath < rightPath) and (leftPath < middlePath)):
-        alarm.setNext(alarm.getLeft())
-        return leftPath
-    elif((rightPath < leftPath) and (rightPath < middlePath)):
-        alarm.setNext(alarm.getRight())
-        return rightPath
-    elif((middlePath < leftPath) and (middlePath < rightPath)):
-        alarm.setNext(alarm.getMiddle())
-        return middlePath
+
+    #find the minimum path, and set the next POI
+    if((leftLength < rightLength) and (leftLength < middleLength)):
+        POI.setNext(POI.getLeft())
+        visited[POI.getLeft().getID()] = True
+        return [POI.getLeft()] + leftPath
+    elif((rightLength < leftLength) and (rightLength < middleLength)):
+        POI.setNext(POI.getRight())
+        visited[POI.getRight().getID()] = True
+        return [POI.getRight()] + rightPath
+    elif((middleLength < leftLength) and (middleLength < rightLength)):
+        POI.setNext(POI.getMiddle())
+        visited[POI.getLeft().getID()] = True
+        return [POI.getMiddle()] + middlePath
     ## if the paths are equal go left cause why not
-    elif(rightPath == leftPath and alarmFrom.getID() != alarmFrom.getLeft().getID()):
-        alarm.setNext(alarm.getLeft())
-        return leftPath
+    elif(rightLength == leftLength and POI.getID() != POIFrom.getLeft().getID()):
+        POI.setNext(POI.getLeft())
+        visited[POI.getLeft().getID()] = True
+        return [POI.getLeft()] + leftPath
     else:
-        alarm.setNext(alarm.getMiddle())
-        return middlePath
+        POI.setNext(POI.getMiddle())
+        visited[POI.getLeft().getID()] = True
+        return [POI.getMiddle()] + middlePath
 
 
 # follows a path until it gets to a wall or exit
-def followPath(alarm):
+def followPath(POI):
 
-    if (alarm == 0):
+    if (POI == 0):
         return
 
-    if(alarm.getID() == 0):
+    if(POI.getID() == 0):
         return
 
-    print alarm.getID()
+    print POI.getID()
 
     # don't wanna go into a wall, buddy (you right)
-    if(alarm.getNext() == 0):
+    if(POI.getNext() == 0):
         return
 
-    # follow the next alarm in the path
-    followPath(alarm.getNext())
+    # follow the next POI in the path
+    followPath(POI.getNext())
 
 
 
-def fireAlarm(alarm):
-    print "Setting off alarm " + str(alarm.getID())
-    leftPath = setPath(alarm.getLeft(), 0, alarm)
-    rightPath = setPath(alarm.getRight(), 0, alarm)
-    middlePath = setPath(alarm.getMiddle(), 0, alarm)
+def fireAlarm(POI, visited):
+    print "Setting off alarm " + str(POI.getID())
+    leftPath = setPath(POI.getLeft(), 0, POI, [], visited)
+    rightPath = setPath(POI.getRight(), 0, POI, [], visited)
+    middlePath = setPath(POI.getMiddle(), 0, POI, [], visited)
 
-    print "Left path is: ", followPath(alarm.getLeft())
+    print "Left path is: ", printPath(leftPath)#followPath(POI.getLeft())
 
-    print "Right path is: ", followPath(alarm.getRight())
+    print "Right path is: ", printPath(rightPath) #followPath(POI.getRight())
 
-    print "Middle path is: ", followPath(alarm.getMiddle())
+    print "Middle path is: ", printPath(middlePath) #followPath(POI.getMiddle())
+
+def printPath(thisPath):
+    pathString = ""
+    if (len(thisPath) == 0):
+        return "none"
+    for POI in thisPath:
+        pathString += (str(POI.getType()) + str(POI.getID()) + " ")
+    return pathString
+
+def findPathLength(thisPath):
+    if(thisPath == oo):
+        pathLength = oo
+    else:
+        pathLength = len(thisPath)
+    return pathLength
 
 
 # main function
 def main():
-    # Set up five alarms
-    alarm1 = Alarm(1)
-    alarm2 = Alarm(2)
-    alarm3 = Alarm(3)
-    alarm4 = Alarm(4)
-    alarm5 = Alarm(5)
 
-    # Set up 3 exits
-    exit1 = Alarm("exit")
-    exit2 = Alarm("exit")
-    exit3 = Alarm("exit")
+    allPOIs = []
+    visited = []
+
+    # set up POI as wall
+    allPOIs += [PointOfInterest(0, "wall")]
+    wall = allPOIs[0]
+    # Set up five POIs as type alarm
+    for i in range(1, 6):
+        tempPOI = PointOfInterest(i, "alarm")
+        allPOIs += [tempPOI]
+
+    # Set up 3 POIs as type exit
+    for i in range(6, 9):
+        allPOIs += [PointOfInterest(i, "exit")]
+
 
     # initialize the connections from one alarm to another
-    alarm1.setAll(exit1, alarm2, 0)
-    alarm2.setAll(alarm1, alarm5, alarm3)
-    alarm3.setAll(alarm2, alarm4, 0)
-    alarm4.setAll(alarm3, exit2, 0)
-    alarm5.setAll(alarm2, exit3, 0)
+    allPOIs[1].setAll(wall,  allPOIs[2], wall)
+    allPOIs[2].setAll(allPOIs[1], allPOIs[3], wall)
+    allPOIs[3].setAll(allPOIs[2], allPOIs[4], wall)
+    allPOIs[4].setAll(allPOIs[3], allPOIs[5], wall)
+    allPOIs[5].setAll(wall, allPOIs[7], wall)
 
-    fireAlarm(alarm3)
+    for POI in allPOIs:
+        visited += [False]
 
-    # print alarm5.getDistance(exit3)
+    fireAlarm(allPOIs[4], visited)
+
+
 
 
 if __name__ == "__main__":
