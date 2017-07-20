@@ -16,14 +16,16 @@ createPath 1.0 (features):
 
 - comment up code
 
-- create path module, with path helper classes
+- create Test Case modules/file
+
+- Test all scenarios
 
 - Issues:
    X- Infinite loop when looking at connected alarms, due to what is marked as visited, alarms
     just call each other back and forth
-    - First alarm visited not listed in path, not connected to other issue
-    - type "wall" appears as exit?
-    - when path is oo, cannot concatenate to list
+   X - First alarm visited not listed in path, not connected to other issue
+   X - type "wall" appears as exit?
+   X - when path is oo, cannot concatenate to list
 
 key:
 - ((( some text ))) -> working title/subject to change

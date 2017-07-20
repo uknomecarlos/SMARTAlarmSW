@@ -16,7 +16,7 @@ class PointOfInterest:
         self.rightLED = 0
         self.middleLED = 0
         self.buzzer = 0
-        self.nextPOI = 0 #revisit necessity of attribute
+        self.nextPOI = 0
 
     # setters for POIs
     def setLeft(self, POI):
@@ -75,12 +75,12 @@ def setPath(POI, length, POIFrom, thisPath, visited):
     print POI.getID()
 
     if(POI.getType() == "wall") or (POI.getID() == 0):
-        return []
+        return visited
 
     visited[POI.getID()] = True
 
     if(POI.getType() == "exit"):
-        return [POI]
+        return visited
 
 
     # base case
@@ -88,41 +88,34 @@ def setPath(POI, length, POIFrom, thisPath, visited):
         POI.setNext(POI.getLeft())
         # POI.getLeft().setVisited(True)
         visited[POI.getLeft().getID()] = True
-        return [POI.getLeft()]
+        return visited
     elif (POI.getRight().getType() != "wall") and (POI.getRight().getType() == "exit"):
         POI.setNext(POI.getRight())
         visited[POI.getRight().getID()] = True
-        return [POI.getRight()]
+        return visited
     elif (POI.getMiddle().getType() != "wall") and (POI.getMiddle().getType() == "exit"):
         POI.setNext(POI.getMiddle())
         visited[POI.getMiddle().getID()] = True
-        return [POI.getMiddle()]
+        return visited
 
     # set the path lengths for the left direction
     # we do not want to go back the way we came so we have a check for that.
     if(POI.getLeft().getType() != "wall" and visited[POI.getLeft().getID()] == False):
-        leftPath = setPath(POI.getLeft(), length, POI, thisPath, visited)
+        leftPath = combineArray(visited, setPath(POI.getLeft(), length, POI, thisPath, visited))
     else:
         leftPath = oo
-
-    #if(POI.getLeft() != 0 and POIFrom.getID() != POI.getLeft().getID()):
-    #     leftPath = setPath(POI.getLeft(), length, POI) + 1
-    #else:
-     #   leftPath = oo
-
-
 
     # set the path lengths for the right direction
     # we do not want to go back the way we came so we have a check for that.
     if(POI.getRight().getType() != "wall" and visited[POI.getRight().getID()] == False):
-         rightPath = setPath(POI.getRight(), length, POI, thisPath, visited)
+         rightPath = combineArray(visited, setPath(POI.getRight(), length, POI, thisPath, visited))
     else:
         rightPath = oo
 
     # set the path lengths for the right direction
     # we do not want to go back the way we came so we have a check for that.
     if(POI.getMiddle().getType() != "wall" and visited[POI.getMiddle().getID()] == False):
-         middlePath = setPath(POI.getMiddle(), length, POI, thisPath, visited)
+         middlePath = combineArray(visited, setPath(POI.getMiddle(), length, POI, thisPath, visited))
     else:
         middlePath = oo
 
@@ -135,72 +128,110 @@ def setPath(POI, length, POIFrom, thisPath, visited):
     if((leftLength < rightLength) and (leftLength < middleLength)):
         POI.setNext(POI.getLeft())
         visited[POI.getLeft().getID()] = True
-        return [POI.getLeft()] + leftPath
+        return visited
     elif((rightLength < leftLength) and (rightLength < middleLength)):
         POI.setNext(POI.getRight())
         visited[POI.getRight().getID()] = True
-        return [POI.getRight()] + rightPath
+        return visited
     elif((middleLength < leftLength) and (middleLength < rightLength)):
         POI.setNext(POI.getMiddle())
         visited[POI.getLeft().getID()] = True
-        return [POI.getMiddle()] + middlePath
+        return visited
     ## if the paths are equal go left cause why not
     elif(rightLength == leftLength and POI.getID() != POIFrom.getLeft().getID()):
         POI.setNext(POI.getLeft())
         visited[POI.getLeft().getID()] = True
-        return [POI.getLeft()] + leftPath
+        return visited
     else:
         POI.setNext(POI.getMiddle())
         visited[POI.getLeft().getID()] = True
-        return [POI.getMiddle()] + middlePath
-
+        return visited
 
 # follows a path until it gets to a wall or exit
-def followPath(POI):
+def followPath(POI, myPath):
 
-    if (POI == 0):
+    if ((POI ==0) or (POI.getType() == "wall")):
         return
 
     if(POI.getID() == 0):
         return
 
-    print POI.getID()
+    myPath += [POI]
 
     # don't wanna go into a wall, buddy (you right)
-    if(POI.getNext() == 0):
+    if((POI.getNext() == 0) or (POI.getNext().getType() == "wall")):
         return
 
     # follow the next POI in the path
-    followPath(POI.getNext())
+    followPath(POI.getNext(), myPath)
 
 
 
 def fireAlarm(POI, visited):
     print "Setting off alarm " + str(POI.getID())
-    leftPath = setPath(POI.getLeft(), 0, POI, [], visited)
-    rightPath = setPath(POI.getRight(), 0, POI, [], visited)
-    middlePath = setPath(POI.getMiddle(), 0, POI, [], visited)
+    setPath(POI.getLeft(), 0, POI, [], visited)
+    setPath(POI.getRight(), 0, POI, [], visited)
+    setPath(POI.getMiddle(), 0, POI, [], visited)
 
-    print "Left path is: ", printPath(leftPath)#followPath(POI.getLeft())
 
-    print "Right path is: ", printPath(rightPath) #followPath(POI.getRight())
+    leftPath = []
+    followPath(POI.getLeft(), leftPath)
+    print "left path: " + printPath(leftPath)
+    rightPath = []
+    followPath(POI.getRight(), rightPath)
+    print "right path: " + printPath(rightPath)
+    middlePath = []
+    followPath(POI.getMiddle(), middlePath)
+    print "middle path: " + printPath(middlePath)
 
-    print "Middle path is: ", printPath(middlePath) #followPath(POI.getMiddle())
+    leftLength = findPathLength(leftPath)
+    rightLength = findPathLength(rightPath)
+    middleLength = findPathLength(middlePath)
+
+    #find the minimum path, and set the next POI
+    if((leftLength < rightLength) and (leftLength < middleLength)):
+        print "Shortest Path is Left Path"
+    elif((rightLength < leftLength) and (rightLength < middleLength)):
+        print "Shortest Path is Right Path"
+    elif((middleLength < leftLength) and (middleLength < rightLength)):
+        print "Shortest Path is Middle Path"
+    ## if the paths are equal go left cause why not
+    elif(rightLength == leftLength and POI.getID() != POIFrom.getLeft().getID()):
+        print "Shortest Path is Left Path"
+    else:
+        print "Shortest Path is Left Path"
+
+
+
 
 def printPath(thisPath):
     pathString = ""
     if (len(thisPath) == 0):
         return "none"
     for POI in thisPath:
-        pathString += (str(POI.getType()) + str(POI.getID()) + " ")
+        pathString += (str(POI.getType()) + str(POI.getID()) + " -> ")
     return pathString
 
 def findPathLength(thisPath):
-    if(thisPath == oo):
+    if(thisPath == oo or len(thisPath) == 0):
         pathLength = oo
     else:
         pathLength = len(thisPath)
     return pathLength
+
+def combineArray(vis1, vis2):
+    newVis = []
+    if(len(vis1) != len(vis2)):
+        return
+    i = 0
+    for val in vis1:
+        if((vis1[i] == True) or (vis2[i] == True)):
+            newVis += [True]
+        else:
+            newVis+= [False]
+        i+=1
+
+    return newVis
 
 
 # main function
@@ -223,16 +254,17 @@ def main():
 
 
     # initialize the connections from one alarm to another
-    allPOIs[1].setAll(wall,  allPOIs[2], wall)
+    allPOIs[1].setAll(wall,  allPOIs[8], wall)
     allPOIs[2].setAll(allPOIs[1], allPOIs[3], wall)
-    allPOIs[3].setAll(allPOIs[2], allPOIs[4], wall)
-    allPOIs[4].setAll(allPOIs[3], allPOIs[5], wall)
+    allPOIs[3].setAll(wall, allPOIs[1], wall)
+    allPOIs[4].setAll(wall, allPOIs[5], allPOIs[3])
     allPOIs[5].setAll(wall, allPOIs[7], wall)
 
     for POI in allPOIs:
         visited += [False]
 
     fireAlarm(allPOIs[4], visited)
+
 
 
 
