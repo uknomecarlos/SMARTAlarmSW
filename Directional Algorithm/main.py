@@ -1,14 +1,24 @@
-oo = 1e9
-allPOIs = []
-# this is the algorithm code for the alarm hub
+# SMART Alarm System
+# Authors: Carlos Castro & Lucas Plager
+# University of Central Florida
+# main.py
+# Path Finding algorithm for the SMART Alarm hub
+# Function: Read configuration of alarms in a building and return fastest
+# exit path for each alarm, and shortest path from fire
 
-# Ctrl-f "revisit" to find issues/potentially irrelevant code
+# Global Variables:
+oo = 1e9  # "infinity"
+
 
 class PointOfInterest:
-    # constructor of an POI
-    def __init__(self, id, type):
-        self.id = id
-        self.type = type
+    # Three types of POI: alarm, exit and wall, ID = 0 for walls, ID is
+    # give to every alarm and exit. Two constructor parameters: ID and Type,
+    # all other class values are initiated to 0
+
+    # constructor
+    def __init__(self, my_id, my_type):
+        self.id = my_id
+        self.type = my_type
         self.left = 0
         self.right = 0
         self.middle = 0
@@ -18,255 +28,267 @@ class PointOfInterest:
         self.buzzer = 0
         self.nextPOI = 0
 
-    # setters for POIs
-    def setLeft(self, POI):
-        self.left = POI
+    # setters
+    # sets POI to the left of the current POI
+    def set_left(self, poi):
+        self.left = poi
 
-    def setRight(self, POI):
-        self.right = POI
+    # sets POI to the right of the current POI
+    def set_right(self, poi):
+        self.right = poi
 
-    def setMiddle(self, POI):
-        self.middle = POI
+    # sets POI in across from the current POI
+    def set_middle(self, poi):
+        self.middle = poi
 
-    def setAll(self, left, right, middle):
-        self.setLeft(left)
-        self.setRight(right)
-        self.setMiddle(middle)
+    # sets the POIs in each direction of the current POI
+    def set_all(self, left, right, middle):
+        self.set_left(left)
+        self.set_right(right)
+        self.set_middle(middle)
 
-    # revisit necessity and use of this function
-    def setNext(self, POI):
-        self.nextPOI = POI
+    # sets the next POI to follow in a path for the given POI
+    def set_next(self, poi):
+        self.nextPOI = poi
 
-    def setVisited(self, boolean):
-        self.visited = boolean
-
-    # getters for POIs
-    def getLeft(self):
+    # getters
+    # returns POI to the left of current POI
+    def get_left(self):
         return self.left
 
-    def getRight(self):
+    # returns POI to the right of the current POI
+    def get_right(self):
         return self.right
 
-    def getMiddle(self):
+    # returns POI across from the current POI
+    def get_middle(self):
         return self.middle
 
-    def getID(self):
+    # returns the ID of the POI
+    def get_id(self):
         return self.id
 
-    def getType(self):
+    # returns the Type of the POI
+    def get_type(self):
         return self.type
 
-    # revisit necessity and use of this function
-    def getNext(self):
+    # returns the next POI to follow in a path for the current POI
+    def get_next(self):
         return self.nextPOI
 
-    def getVisited(self):
-        return self.visited
 
-def resetVisited():
-    for POI in allPOIs:
-        POI.setVisited(False)
+def set_path(poi_from, poi, this_path, visited):
+    # This function finds the shortest path from the POI value passed
+    # poi_from is the previous POI in the path, poi is the current POI,
+    # this_path is a list that holds the POI in the path, and visited
+    # is a boolean list for checking if a POI has been visited
+    # Return value: a boolean list "visited"
 
-
-
-# probably don't need "length" or POIFrom parameters revisit
-def setPath(POI, length, POIFrom, thisPath, visited):
-
-    print POI.getID()
-
-    if(POI.getType() == "wall") or (POI.getID() == 0):
+    # Check if POI is a wall
+    if(poi.get_type() == "wall") or (poi.get_id() == 0):
         return visited
 
-    visited[POI.getID()] = True
+    # Mark current POI as visited
+    visited[poi.get_id()] = True
 
-    if(POI.getType() == "exit"):
+    # Check if POI is an exit
+    if poi.get_type() == "exit":
         return visited
-
 
     # base case
-    if (POI.getLeft().getType() != "wall") and (POI.getLeft().getType() == "exit"):
-        POI.setNext(POI.getLeft())
-        # POI.getLeft().setVisited(True)
-        visited[POI.getLeft().getID()] = True
+    # Check each adjacent POI, if it's not a wall, and it's an exit, set the adjacent
+    # POI as next and mark as visited, then return
+    if (poi.get_left().get_type() != "wall") and (poi.get_left().get_type() == "exit"):
+        poi.set_next(poi.get_left())
+        visited[poi.get_left().get_id()] = True
         return visited
-    elif (POI.getRight().getType() != "wall") and (POI.getRight().getType() == "exit"):
-        POI.setNext(POI.getRight())
-        visited[POI.getRight().getID()] = True
+    elif (poi.get_right().get_type() != "wall") and (poi.get_right().get_type() == "exit"):
+        poi.set_next(poi.get_right())
+        visited[poi.get_right().get_id()] = True
         return visited
-    elif (POI.getMiddle().getType() != "wall") and (POI.getMiddle().getType() == "exit"):
-        POI.setNext(POI.getMiddle())
-        visited[POI.getMiddle().getID()] = True
+    elif (poi.get_middle().get_type() != "wall") and (poi.get_middle().get_type() == "exit"):
+        poi.set_next(poi.get_middle())
+        visited[poi.get_middle().get_id()] = True
         return visited
 
-    # set the path lengths for the left direction
+    # set the path for the left direction
     # we do not want to go back the way we came so we have a check for that.
-    if(POI.getLeft().getType() != "wall" and visited[POI.getLeft().getID()] == False):
-        leftPath = combineArray(visited, setPath(POI.getLeft(), length, POI, thisPath, visited))
+    # Will combine current visited array and the returned array from the path
+    # if there are any changes
+    if (poi.get_left().get_type() != "wall") and not(visited[poi.get_left().get_id()]):
+        left_path = combine_array(visited, set_path(poi, poi.get_left(), this_path, visited))
     else:
-        leftPath = oo
+        left_path = oo
 
-    # set the path lengths for the right direction
+    # set the path for the right direction
     # we do not want to go back the way we came so we have a check for that.
-    if(POI.getRight().getType() != "wall" and visited[POI.getRight().getID()] == False):
-         rightPath = combineArray(visited, setPath(POI.getRight(), length, POI, thisPath, visited))
+    # Will combine current visited array and the returned array from the path
+    # if there are any changes
+    if (poi.get_right().get_type() != "wall") and not(visited[poi.get_right().get_id()]):
+        right_path = combine_array(visited, set_path(poi, poi.get_right(), this_path, visited))
     else:
-        rightPath = oo
+        right_path = oo
 
-    # set the path lengths for the right direction
+    # set the path for the middle
     # we do not want to go back the way we came so we have a check for that.
-    if(POI.getMiddle().getType() != "wall" and visited[POI.getMiddle().getID()] == False):
-         middlePath = combineArray(visited, setPath(POI.getMiddle(), length, POI, thisPath, visited))
+    # Will combine current visited array and the returned array from the path
+    # if there are any changes
+    if (poi.get_middle().get_type() != "wall") and not(visited[poi.get_middle().get_id()]):
+        middle_path = combine_array(visited, set_path(poi, poi.get_middle(), this_path, visited))
     else:
-        middlePath = oo
+        middle_path = oo
 
-    leftLength = findPathLength(leftPath)
-    rightLength = findPathLength(rightPath)
-    middleLength = findPathLength(middlePath)
+    # Find length for each path from the current POI
+    left_length = find_path_length(left_path)
+    right_length = find_path_length(right_path)
+    middle_length = find_path_length(middle_path)
 
-
-    #find the minimum path, and set the next POI
-    if((leftLength < rightLength) and (leftLength < middleLength)):
-        POI.setNext(POI.getLeft())
-        visited[POI.getLeft().getID()] = True
+    # find the minimum path, and set the next POI
+    if (left_length < right_length) and (left_length < middle_length):
+        poi.set_next(poi.get_left())
+        visited[poi.get_left().get_id()] = True
         return visited
-    elif((rightLength < leftLength) and (rightLength < middleLength)):
-        POI.setNext(POI.getRight())
-        visited[POI.getRight().getID()] = True
+    elif (right_length < left_length) and (right_length < middle_length):
+        poi.set_next(poi.get_right())
+        visited[poi.get_right().get_id()] = True
         return visited
-    elif((middleLength < leftLength) and (middleLength < rightLength)):
-        POI.setNext(POI.getMiddle())
-        visited[POI.getLeft().getID()] = True
+    elif (middle_length < left_length) and (middle_length < right_length):
+        poi.set_next(poi.get_middle())
+        visited[poi.get_left().get_id()] = True
         return visited
-    ## if the paths are equal go left cause why not
-    elif(rightLength == leftLength and POI.getID() != POIFrom.getLeft().getID()):
-        POI.setNext(POI.getLeft())
-        visited[POI.getLeft().getID()] = True
+    # if the paths are equal go left cause why not
+    elif (right_length == left_length) and (poi.get_id() != poi_from.get_left().get_id()):
+        poi.set_next(poi.get_left())
+        visited[poi.get_left().get_id()] = True
         return visited
     else:
-        POI.setNext(POI.getMiddle())
-        visited[POI.getLeft().getID()] = True
+        poi.set_next(poi.get_middle())
+        visited[poi.get_left().get_id()] = True
         return visited
+
 
 # follows a path until it gets to a wall or exit
-def followPath(POI, myPath):
+def follow_path(poi, my_path):
 
-    if ((POI ==0) or (POI.getType() == "wall")):
+    if (poi == 0) or (poi.get_type() == "wall"):
         return
 
-    if(POI.getID() == 0):
+    if poi.get_id() == 0:
         return
 
-    myPath += [POI]
+    my_path += [poi]
 
     # don't wanna go into a wall, buddy (you right)
-    if((POI.getNext() == 0) or (POI.getNext().getType() == "wall")):
+    if (poi.get_next() == 0) or (poi.get_next().get_type() == "wall"):
         return
 
     # follow the next POI in the path
-    followPath(POI.getNext(), myPath)
+    follow_path(poi.get_next(), my_path)
 
 
+def fire_alarm(poi, visited):
+    # Marks the current POI as the site of the fire, finds the shortest
+    # path from the fire at the current POI
 
-def fireAlarm(POI, visited):
-    print "Setting off alarm " + str(POI.getID())
-    setPath(POI.getLeft(), 0, POI, [], visited)
-    setPath(POI.getRight(), 0, POI, [], visited)
-    setPath(POI.getMiddle(), 0, POI, [], visited)
+    print "Setting off alarm " + str(poi.get_id())
+    set_path(poi, poi.get_left(), [], visited)
+    set_path(poi, poi.get_right(), [], visited)
+    set_path(poi, poi.get_middle(), [], visited)
 
+    left_path = []
+    follow_path(poi.get_left(), left_path)
+    print "left path: " + print_path(left_path)
+    right_path = []
+    follow_path(poi.get_right(), right_path)
+    print "right path: " + print_path(right_path)
+    middle_path = []
+    follow_path(poi.get_middle(), middle_path)
+    print "middle path: " + print_path(middle_path)
 
-    leftPath = []
-    followPath(POI.getLeft(), leftPath)
-    print "left path: " + printPath(leftPath)
-    rightPath = []
-    followPath(POI.getRight(), rightPath)
-    print "right path: " + printPath(rightPath)
-    middlePath = []
-    followPath(POI.getMiddle(), middlePath)
-    print "middle path: " + printPath(middlePath)
+    left_length = find_path_length(left_path)
+    right_length = find_path_length(right_path)
+    middle_length = find_path_length(middle_path)
 
-    leftLength = findPathLength(leftPath)
-    rightLength = findPathLength(rightPath)
-    middleLength = findPathLength(middlePath)
-
-    #find the minimum path, and set the next POI
-    if((leftLength < rightLength) and (leftLength < middleLength)):
+    # find the minimum path, and set the next POI
+    if (left_length < right_length) and (left_length < middle_length):
         print "Shortest Path is Left Path"
-    elif((rightLength < leftLength) and (rightLength < middleLength)):
+    elif (right_length < left_length) and (right_length < middle_length):
         print "Shortest Path is Right Path"
-    elif((middleLength < leftLength) and (middleLength < rightLength)):
+    elif (middle_length < left_length) and (middle_length < right_length):
         print "Shortest Path is Middle Path"
-    ## if the paths are equal go left cause why not
-    elif(rightLength == leftLength and POI.getID() != POIFrom.getLeft().getID()):
+    # if the paths are equal go left cause why not
+    elif right_length == left_length:
         print "Shortest Path is Left Path"
     else:
         print "Shortest Path is Left Path"
 
 
-
-
-def printPath(thisPath):
-    pathString = ""
-    if (len(thisPath) == 0):
+def print_path(this_path):
+    # prints a path in the order from fire to exit
+    path_string = ""
+    if len(this_path) == 0:
         return "none"
-    for POI in thisPath:
-        pathString += (str(POI.getType()) + str(POI.getID()) + " -> ")
-    return pathString
+    for poi in this_path:
+        path_string += (str(poi.get_type()) + str(poi.get_id()) + " -> ")
+    return path_string
 
-def findPathLength(thisPath):
-    if(thisPath == oo or len(thisPath) == 0):
-        pathLength = oo
+
+def find_path_length(this_path):
+    # Find the length of a given path
+
+    if (this_path == oo) or (len(this_path) == 0):
+        path_length = oo
     else:
-        pathLength = len(thisPath)
-    return pathLength
+        path_length = len(this_path)
+    return path_length
 
-def combineArray(vis1, vis2):
-    newVis = []
-    if(len(vis1) != len(vis2)):
+
+def combine_array(vis1, vis2):
+    # for two boolean visited lists, perform logical or for each value
+    new_vis = []
+    if len(vis1) != len(vis2):
         return
     i = 0
     for val in vis1:
-        if((vis1[i] == True) or (vis2[i] == True)):
-            newVis += [True]
+        if vis1[i] or vis2[i]:
+            new_vis += [True]
         else:
-            newVis+= [False]
-        i+=1
+            new_vis += [False]
+        i += 1
 
-    return newVis
+    return new_vis
 
 
 # main function
 def main():
 
-    allPOIs = []
-    visited = []
+    all_pois = [] # list containing every POI in system
+    visited = [] # a boolean value corresponding to each POI adn it's ID
 
     # set up POI as wall
-    allPOIs += [PointOfInterest(0, "wall")]
-    wall = allPOIs[0]
+    all_pois += [PointOfInterest(0, "wall")]
+    wall = all_pois[0]
+
     # Set up five POIs as type alarm
     for i in range(1, 6):
-        tempPOI = PointOfInterest(i, "alarm")
-        allPOIs += [tempPOI]
+        temp_poi = PointOfInterest(i, "alarm")
+        all_pois += [temp_poi]
 
     # Set up 3 POIs as type exit
     for i in range(6, 9):
-        allPOIs += [PointOfInterest(i, "exit")]
-
+        all_pois += [PointOfInterest(i, "exit")]
 
     # initialize the connections from one alarm to another
-    allPOIs[1].setAll(wall,  allPOIs[8], wall)
-    allPOIs[2].setAll(allPOIs[1], allPOIs[3], wall)
-    allPOIs[3].setAll(wall, allPOIs[1], wall)
-    allPOIs[4].setAll(wall, allPOIs[5], allPOIs[3])
-    allPOIs[5].setAll(wall, allPOIs[7], wall)
+    all_pois[1].set_all(wall,  all_pois[8], wall)
+    all_pois[2].set_all(all_pois[1], all_pois[3], wall)
+    all_pois[3].set_all(wall, all_pois[1], wall)
+    all_pois[4].set_all(wall, all_pois[5], all_pois[3])
+    all_pois[5].set_all(wall, all_pois[7], wall)
 
-    for POI in allPOIs:
+    for poi in all_pois:
         visited += [False]
 
-    fireAlarm(allPOIs[4], visited)
-
-
-
+    fire_alarm(all_pois[4], visited)
 
 
 if __name__ == "__main__":
