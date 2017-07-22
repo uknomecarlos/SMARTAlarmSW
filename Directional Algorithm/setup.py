@@ -7,6 +7,6 @@ setup(
     url='https://github.com/uknomecarlos/SMARTAlarmSW',
     license='',
     author='Carlos Castro and Lucas Plager',
-    author_email='',
+    author_email='castro_carlos6@hotmail.com',
     description=''
 )
