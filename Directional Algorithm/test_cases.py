@@ -32,11 +32,11 @@ def test_case0():
     wall = all_pois[0]
 
     # initialize the connections from one alarm to another
-    all_pois[1].set_all(wall, all_pois[7], wall)
+    all_pois[1].set_all(wall, wall, all_pois[7])
     all_pois[2].set_all(wall, wall, wall)
-    all_pois[3].set_all(wall, all_pois[1], wall)
-    all_pois[4].set_all(wall, all_pois[5], all_pois[3])
-    all_pois[5].set_all(wall, all_pois[6], wall)
+    all_pois[3].set_all(wall, wall, all_pois[1])
+    all_pois[4].set_all(wall, all_pois[3], all_pois[5])
+    all_pois[5].set_all(wall, wall, all_pois[6])
 
     fire_alarm(all_pois[4], visited)
 
@@ -52,12 +52,15 @@ def test_case1():
     wall = all_pois[0]
 
     # initialize the connections from one alarm to another
-    all_pois[1].set_all(all_pois[6], all_pois[2], wall)
-    all_pois[2].set_all(all_pois[1], all_pois[3], wall)
-    all_pois[3].set_all(all_pois[2], all_pois[4], wall)
-    all_pois[4].set_all(all_pois[3], all_pois[5], wall)
-    all_pois[5].set_all(all_pois[4], all_pois[7], wall)
+    all_pois[1].set_all(all_pois[6], wall, all_pois[2])
+    all_pois[2].set_all(all_pois[1], wall, all_pois[3])
+    all_pois[3].set_all(all_pois[2], wall, all_pois[4])
+    all_pois[4].set_all(all_pois[3], wall, all_pois[5])
+    all_pois[5].set_all(all_pois[4], wall, all_pois[7])
 
+    print " "
+    print "Test Case 1: "
+    print " "
     fire_alarm(all_pois[3], visited)
 
 
@@ -72,12 +75,15 @@ def test_case2():
     wall = all_pois[0]
 
     # initialize the connections from one alarm to another
-    all_pois[1].set_all(all_pois[6], all_pois[2], wall)
-    all_pois[2].set_all(all_pois[1], all_pois[3], wall)
-    all_pois[3].set_all(all_pois[2], all_pois[4], wall)
-    all_pois[4].set_all(all_pois[3], all_pois[5], wall)
-    all_pois[5].set_all(all_pois[4], all_pois[7], wall)
+    all_pois[1].set_all(all_pois[6], wall, all_pois[2])
+    all_pois[2].set_all(all_pois[1], wall, all_pois[3])
+    all_pois[3].set_all(all_pois[2], wall, all_pois[4])
+    all_pois[4].set_all(all_pois[3], wall, all_pois[5])
+    all_pois[5].set_all(all_pois[4], wall, all_pois[7])
 
+    print " "
+    print "Test Case 2: "
+    print " "
     fire_alarm(all_pois[1], visited)
 
 
@@ -92,12 +98,15 @@ def test_case3():
     wall = all_pois[0]
 
     # initialize the connections from one alarm to another
-    all_pois[1].set_all(all_pois[2], all_pois[6], wall)
-    all_pois[2].set_all(all_pois[3], all_pois[1], wall)
-    all_pois[3].set_all(wall, all_pois[2], all_pois[4])
-    all_pois[4].set_all(all_pois[3], all_pois[5], wall)
-    all_pois[5].set_all(all_pois[4], all_pois[7], wall)
+    all_pois[1].set_all(all_pois[2], wall, all_pois[6])
+    all_pois[2].set_all(all_pois[3], wall, all_pois[1])
+    all_pois[3].set_all(wall, all_pois[4], all_pois[2])
+    all_pois[4].set_all(all_pois[3], wall, all_pois[5])
+    all_pois[5].set_all(all_pois[4], wall, all_pois[7])
 
+    print " "
+    print "Test Case 3: "
+    print " "
     fire_alarm(all_pois[1], visited)
 
 
@@ -112,12 +121,15 @@ def test_case4():
     wall = all_pois[0]
 
     # initialize the connections from one alarm to another
-    all_pois[1].set_all(all_pois[2], all_pois[6], wall)
-    all_pois[2].set_all(all_pois[3], all_pois[1], wall)
-    all_pois[3].set_all(wall, all_pois[2], all_pois[4])
-    all_pois[4].set_all(all_pois[3], all_pois[5], wall)
-    all_pois[5].set_all(all_pois[4], all_pois[7], wall)
+    all_pois[1].set_all(all_pois[2], wall, all_pois[6])
+    all_pois[2].set_all(all_pois[3], wall, all_pois[1])
+    all_pois[3].set_all(wall, all_pois[4], all_pois[2])
+    all_pois[4].set_all(all_pois[3], wall, all_pois[5])
+    all_pois[5].set_all(all_pois[4], wall, all_pois[7])
 
+    print " "
+    print "Test Case 4: "
+    print " "
     fire_alarm(all_pois[3], visited)
 
 
@@ -132,12 +144,15 @@ def test_case5():
     wall = all_pois[0]
 
     # initialize the connections from one alarm to another
-    all_pois[1].set_all(all_pois[6], all_pois[2], wall)
-    all_pois[2].set_all(all_pois[1], all_pois[3], all_pois[4])
-    all_pois[3].set_all(all_pois[2], all_pois[7], wall)
-    all_pois[4].set_all(all_pois[5], all_pois[2], wall)
-    all_pois[5].set_all(all_pois[8], all_pois[4], wall)
+    all_pois[1].set_all(all_pois[6], wall, all_pois[2])
+    all_pois[2].set_all(all_pois[1], all_pois[4], all_pois[3])
+    all_pois[3].set_all(all_pois[2], wall, all_pois[7])
+    all_pois[4].set_all(all_pois[5], wall, all_pois[2])
+    all_pois[5].set_all(all_pois[8], wall, all_pois[4])
 
+    print " "
+    print "Test Case 5: "
+    print " "
     fire_alarm(all_pois[1], visited)
 
 
@@ -152,10 +167,13 @@ def test_case6():
     wall = all_pois[0]
 
     # initialize the connections from one alarm to another
-    all_pois[1].set_all(all_pois[6], all_pois[2], wall)
-    all_pois[2].set_all(all_pois[1], all_pois[3], all_pois[4])
-    all_pois[3].set_all(all_pois[2], all_pois[7], wall)
-    all_pois[4].set_all(all_pois[5], all_pois[2], wall)
-    all_pois[5].set_all(all_pois[8], all_pois[4], wall)
+    all_pois[1].set_all(all_pois[6], wall, all_pois[2])
+    all_pois[2].set_all(all_pois[1], all_pois[4], all_pois[3])
+    all_pois[3].set_all(all_pois[2], wall, all_pois[7])
+    all_pois[4].set_all(all_pois[5], wall, all_pois[2])
+    all_pois[5].set_all(all_pois[8], wall, all_pois[4])
 
+    print " "
+    print "Test Case 6: "
+    print " "
     fire_alarm(all_pois[2], visited)

@@ -1,7 +1,7 @@
 # SMART Alarm System
 # Authors: Carlos Castro & Lucas Plager
 # University of Central Florida
-# main.py
+# PointOfInterest.py
 # Path Finding algorithm for the SMART Alarm hub
 # Function: Read configuration of alarms in a building and return fastest
 # exit path for each alarm, and shortest path from fire
@@ -42,8 +42,9 @@ class PointOfInterest:
         self.middle = poi
 
     # sets the POIs in each direction of the current POI
-    def set_all(self, left, right, middle):
+    def set_all(self, left, middle, right):
         self.set_left(left)
+        self.set_right(right)
         self.set_right(right)
         self.set_middle(middle)
 

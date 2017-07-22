@@ -21,11 +21,12 @@ createPath 1.0 (features):
 - Test all scenarios
 
 - Issues:
-   X- Infinite loop when looking at connected alarms, due to what is marked as visited, alarms
+   X - Infinite loop when looking at connected alarms, alarms
     just call each other back and forth
    X - First alarm visited not listed in path, not connected to other issue
    X - type "wall" appears as exit?
    X - when path is oo, cannot concatenate to list
+   - Test Case 5 does not find shortest possible path for right path
 
 key:
 - ((( some text ))) -> working title/subject to change

@@ -38,28 +38,22 @@ def set_path(poi_from, poi, this_path, visited):
 
     # set the path for the left direction
     # we do not want to go back the way we came so we have a check for that.
-    # Will combine current visited array and the returned array from the path
-    # if there are any changes
     if (poi.get_left().get_type() != "wall") and not(visited[poi.get_left().get_id()]):
-        left_path = combine_list(visited, set_path(poi, poi.get_left(), this_path, visited))
+        left_path = set_path(poi, poi.get_left(), this_path, visited)
     else:
         left_path = oo
 
     # set the path for the right direction
     # we do not want to go back the way we came so we have a check for that.
-    # Will combine current visited array and the returned array from the path
-    # if there are any changes
     if (poi.get_right().get_type() != "wall") and not(visited[poi.get_right().get_id()]):
-        right_path = combine_list(visited, set_path(poi, poi.get_right(), this_path, visited))
+        right_path = set_path(poi, poi.get_right(), this_path, visited)
     else:
         right_path = oo
 
     # set the path for the middle
     # we do not want to go back the way we came so we have a check for that.
-    # Will combine current visited array and the returned array from the path
-    # if there are any changes
     if (poi.get_middle().get_type() != "wall") and not(visited[poi.get_middle().get_id()]):
-        middle_path = combine_list(visited, set_path(poi, poi.get_middle(), this_path, visited))
+        middle_path = set_path(poi, poi.get_middle(), this_path, visited)
     else:
         middle_path = oo
 
@@ -116,23 +110,24 @@ def fire_alarm(poi, visited):
     # path from the fire at the current POI
 
     print "Setting off alarm " + str(poi.get_id())
+    visited[poi.get_id()] = True
     set_path(poi, poi.get_left(), [], visited)
-    set_path(poi, poi.get_right(), [], visited)
     set_path(poi, poi.get_middle(), [], visited)
+    set_path(poi, poi.get_right(), [], visited)
 
     left_path = []
     follow_path(poi.get_left(), left_path)
     print "left path: " + print_path(left_path)
-    right_path = []
-    follow_path(poi.get_right(), right_path)
-    print "right path: " + print_path(right_path)
     middle_path = []
     follow_path(poi.get_middle(), middle_path)
     print "middle path: " + print_path(middle_path)
+    right_path = []
+    follow_path(poi.get_right(), right_path)
+    print "right path: " + print_path(right_path)
 
     left_length = find_path_length(left_path)
-    right_length = find_path_length(right_path)
     middle_length = find_path_length(middle_path)
+    right_length = find_path_length(right_path)
 
     # find the minimum path, and set the next POI
     if (left_length < right_length) and (left_length < middle_length):
@@ -166,19 +161,3 @@ def find_path_length(this_path):
     else:
         path_length = len(this_path)
     return path_length
-
-
-def combine_list(vis1, vis2):
-    # for two boolean visited lists, perform logical or for each value
-    new_vis = []
-    if len(vis1) != len(vis2):
-        return
-    i = 0
-    for val in vis1:
-        if vis1[i] or vis2[i]:
-            new_vis += [True]
-        else:
-            new_vis += [False]
-        i += 1
-
-    return new_vis
