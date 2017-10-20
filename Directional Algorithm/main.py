@@ -4,7 +4,6 @@ from test_cases import *
 # main function
 def main():
 
-    # test_case0()
     test_case1()
     test_case2()
     test_case3()

@@ -1,4 +1,4 @@
-createPath 1.0 (features):
+path.py 1.0 (features):
 
 - add and implement path object (list of alarms)
 
@@ -26,7 +26,7 @@ createPath 1.0 (features):
    X - First alarm visited not listed in path, not connected to other issue
    X - type "wall" appears as exit?
    X - when path is oo, cannot concatenate to list
-   - Test Case 5 does not find shortest possible path for right path
+   X- Test Case 5 does not find shortest possible path for "right" path
 
 key:
 - ((( some text ))) -> working title/subject to change

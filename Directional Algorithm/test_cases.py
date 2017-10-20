@@ -2,9 +2,10 @@ from PointOfInterest import *
 from path import *
 
 
+# Create array of POI and set up alarm layout
 def set_poi(my_poi, vis, num_alarm, num_exit):
 
-    # set up POI as wall
+    # set up POI as wall, it's a placeholder, to place walls adjacent to alarms
     my_poi += [PointOfInterest(0, "wall")]
 
     # Set up five POIs as type alarm
@@ -18,27 +19,6 @@ def set_poi(my_poi, vis, num_alarm, num_exit):
 
     for poi in my_poi:
         vis += [False]
-
-
-def test_case0():
-    # This test case is what was used to develop path.py,
-    # isn't actually anything because some alarms don't point back to
-    # adjacent alarms
-
-    all_pois = []  # list containing every POI in system
-    visited = []  # a boolean value corresponding to each POI and it's ID
-
-    set_poi(all_pois, visited, 5, 2)
-    wall = all_pois[0]
-
-    # initialize the connections from one alarm to another
-    all_pois[1].set_all(wall, wall, all_pois[7])
-    all_pois[2].set_all(wall, wall, wall)
-    all_pois[3].set_all(wall, wall, all_pois[1])
-    all_pois[4].set_all(wall, all_pois[3], all_pois[5])
-    all_pois[5].set_all(wall, wall, all_pois[6])
-
-    fire_alarm(all_pois[4], visited)
 
 
 def test_case1():
@@ -61,6 +41,8 @@ def test_case1():
     print " "
     print "Test Case 1: "
     print " "
+
+    #set off fire at alarm 3
     fire_alarm(all_pois[3], visited)
 
 
@@ -84,6 +66,8 @@ def test_case2():
     print " "
     print "Test Case 2: "
     print " "
+
+    # set off fire at alarm 1
     fire_alarm(all_pois[1], visited)
 
 
@@ -107,6 +91,8 @@ def test_case3():
     print " "
     print "Test Case 3: "
     print " "
+
+    # set off fire at alarm 1
     fire_alarm(all_pois[1], visited)
 
 
@@ -130,6 +116,8 @@ def test_case4():
     print " "
     print "Test Case 4: "
     print " "
+
+    # set off fire at alarm 3
     fire_alarm(all_pois[3], visited)
 
 
@@ -153,6 +141,8 @@ def test_case5():
     print " "
     print "Test Case 5: "
     print " "
+
+    # set off fire at alarm 1
     fire_alarm(all_pois[1], visited)
 
 
@@ -176,4 +166,6 @@ def test_case6():
     print " "
     print "Test Case 6: "
     print " "
+
+    # set off fire at alarm 2
     fire_alarm(all_pois[2], visited)
