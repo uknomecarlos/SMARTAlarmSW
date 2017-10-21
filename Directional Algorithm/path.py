@@ -10,7 +10,7 @@
 oo = 1e9  # "infinity"
 
 
-def set_path(poi_from, poi, this_path, visited):
+def set_path(poi_from, poi, this_path, visited, distance):
     # This function finds the shortest path from the POI value passed
     # poi_from is the previous POI in the path, poi is the current POI,
     # this_path is a list that holds the POI in the path, and visited
@@ -33,35 +33,41 @@ def set_path(poi_from, poi, this_path, visited):
     # POI as next and mark as visited since the end of the path has been reached, return
     if (poi.get_left().get_type() != "wall") and (poi.get_left().get_type() == "exit"):
         poi.set_next(poi.get_left())
+        poi.set_next_direction("left")
+        poi.set_distance(distance + 1)
         visited[poi.get_left().get_id()] = True
         return visited
     elif (poi.get_right().get_type() != "wall") and (poi.get_right().get_type() == "exit"):
         poi.set_next(poi.get_right())
+        poi.set_next_direction("right")
+        poi.set_distance(distance + 1)
         visited[poi.get_right().get_id()] = True
         return visited
     elif (poi.get_middle().get_type() != "wall") and (poi.get_middle().get_type() == "exit"):
         poi.set_next(poi.get_middle())
+        poi.set_next_direction("middle")
+        poi.set_distance(distance + 1)
         visited[poi.get_middle().get_id()] = True
         return visited
 
     # set the path for the left direction
     # we do not want to go back the way we came so we have a check for that.
     if (poi.get_left().get_type() != "wall") and not(visited[poi.get_left().get_id()]):
-        left_vis = set_path(poi, poi.get_left(), this_path, visited)
+        left_vis = set_path(poi, poi.get_left(), this_path, visited, distance + 1)
     else:
         left_vis = oo
 
     # set the path for the right direction
     # we do not want to go back the way we came so we have a check for that.
     if (poi.get_right().get_type() != "wall") and not(visited[poi.get_right().get_id()]):
-        right_vis = set_path(poi, poi.get_right(), this_path, visited)
+        right_vis = set_path(poi, poi.get_right(), this_path, visited, distance + 1)
     else:
         right_vis = oo
 
     # set the path for the middle
     # we do not want to go back the way we came so we have a check for that.
     if (poi.get_middle().get_type() != "wall") and not(visited[poi.get_middle().get_id()]):
-        middle_vis = set_path(poi, poi.get_middle(), this_path, visited)
+        middle_vis = set_path(poi, poi.get_middle(), this_path, visited, distance + 1)
     else:
         middle_vis = oo
 
@@ -80,32 +86,46 @@ def set_path(poi_from, poi, this_path, visited):
 
     # find the minimum path, and set the next POI for the current POI to follow it's shortest path
     if (left_length < right_length) and (left_length < middle_length):
+        poi.set_distance(distance + 1)
         poi.set_next(poi.get_left())
+        poi.set_next_direction("left")
         visited[poi.get_left().get_id()] = True
         return visited
     elif (right_length < left_length) and (right_length < middle_length):
+        poi.set_distance(distance + 1)
         poi.set_next(poi.get_right())
+        poi.set_next_direction("right")
         visited[poi.get_right().get_id()] = True
         return visited
     elif (middle_length < left_length) and (middle_length < right_length):
+        poi.set_distance(distance + 1)
         poi.set_next(poi.get_middle())
+        poi.set_next_direction("middle")
         visited[poi.get_middle().get_id()] = True
         return visited
     # if the paths are equal go left cause why not
     elif (right_length == left_length) and (poi.get_id() != poi_from.get_left().get_id()):
+        poi.set_distance(distance + 1)
         poi.set_next(poi.get_left())
+        poi.set_next_direction("left")
         visited[poi.get_left().get_id()] = True
         return visited
     elif(right_length == middle_length) and (poi.get_id() != poi_from.get_right().get_id()):
+        poi.set_distance(distance + 1)
         poi.set_next(poi.get_right())
+        poi.set_next_direction("right")
         visited[poi.get_middle().get_id()] = True
         return visited
     elif (middle_length == left_length) and (poi.get_id() != poi_from.get_left().get_id()):
+        poi.set_distance(distance + 1)
         poi.set_next(poi.get_left())
+        poi.set_next_direction("left")
         visited[poi.get_left().get_id()] = True
         return visited
     else:
+        poi.set_distance(distance + 1)
         poi.set_next(poi.get_left())
+        poi.set_next_direction("left")
         visited[poi.get_left().get_id()] = True
         return visited
 
@@ -138,21 +158,24 @@ def fire_alarm(poi, visited):
     visited[poi.get_id()] = True
 
     # Find shortest path in each direction of fire
-    set_path(poi, poi.get_left(), [], visited)
-    set_path(poi, poi.get_middle(), [], visited)
-    set_path(poi, poi.get_right(), [], visited)
+    set_path(poi, poi.get_left(), [], visited, 0)
+    set_path(poi, poi.get_middle(), [], visited, 0)
+    set_path(poi, poi.get_right(), [], visited, 0)
 
     # use "follow_path" to create POI lists that contain the path in ascending order from
     # the fire to the nearest exit
     left_path = []
     follow_path(poi.get_left(), left_path, visited)
     print "left path: " + print_path(left_path)
+    print "left directions: " + print_directions(left_path)
     middle_path = []
     follow_path(poi.get_middle(), middle_path, visited)
     print "middle path: " + print_path(middle_path)
+    print "middle directions: " + print_directions(middle_path)
     right_path = []
     follow_path(poi.get_right(), right_path, visited)
     print "right path: " + print_path(right_path)
+    print "right directions: " + print_directions(right_path)
 
     left_length = find_path_length(left_path)
     middle_length = find_path_length(middle_path)
@@ -160,30 +183,53 @@ def fire_alarm(poi, visited):
 
     # find the minimum path, and set the next POI
     if (left_length < right_length) and (left_length < middle_length):
+        poi.set_next_direction("left")
         print "Shortest Path is Left Path"
     elif (right_length < left_length) and (right_length < middle_length):
+        poi.set_next_direction("right")
         print "Shortest Path is Right Path"
     elif (middle_length < left_length) and (middle_length < right_length):
+        poi.set_next_direction("middle")
         print "Shortest Path is Middle Path"
     # if the right and left paths are equal go left cause why not,
     elif right_length == left_length:
+        poi.set_next_direction("left")
         print "Shortest Paths are Left and Right Paths"
     elif right_length == middle_length:
+        poi.set_next_direction("right")
         print "Shortest Paths are Middle and Right Paths"
     elif left_length == middle_length:
+        poi.set_next_direction("left")
         print "Shortest Paths are Left and Middle Paths"
     else:
+        poi.set_next_direction("left")
         print "Shortest Path is Left Path"
 
 
 def print_path(this_path):
     # prints a path in the order from fire to exit
     path_string = ""
+
     if len(this_path) == 0:
         return "none"
     for poi in this_path:
         path_string += (str(poi.get_type()) + str(poi.get_id()) + " -> ")
     return path_string
+
+def print_directions(this_path):
+    # prints a path in the order from fire to exit
+    direction_string = ""
+
+    if len(this_path) == 0:
+        return "none"
+    for poi in this_path:
+        direction_string += (str(poi.get_next_direction()) + " -> ")
+    return direction_string
+
+def print_each_direction(all_pois):
+    for poi in all_pois:
+        if poi.get_type() != "exit" or poi.get_type() != "wall":
+            print(str(poi.get_id()) + " direction:" + str(poi.get_next_direction()) + " distance:" + str(poi.get_distance()))
 
 
 def find_path_length(this_path):
