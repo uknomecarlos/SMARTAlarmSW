@@ -44,6 +44,7 @@ def test_case1():
 
     #set off fire at alarm 3
     fire_alarm(all_pois[3], visited)
+    print_each_direction(all_pois)
 
 
 def test_case2():
@@ -69,6 +70,7 @@ def test_case2():
 
     # set off fire at alarm 1
     fire_alarm(all_pois[1], visited)
+    print_each_direction(all_pois)
 
 
 def test_case3():
@@ -94,6 +96,7 @@ def test_case3():
 
     # set off fire at alarm 1
     fire_alarm(all_pois[1], visited)
+    print_each_direction(all_pois)
 
 
 def test_case4():
@@ -119,6 +122,7 @@ def test_case4():
 
     # set off fire at alarm 3
     fire_alarm(all_pois[3], visited)
+    print_each_direction(all_pois)
 
 
 def test_case5():
@@ -144,6 +148,7 @@ def test_case5():
 
     # set off fire at alarm 1
     fire_alarm(all_pois[1], visited)
+    print_each_direction(all_pois)
 
 
 def test_case6():
@@ -169,3 +174,4 @@ def test_case6():
 
     # set off fire at alarm 2
     fire_alarm(all_pois[2], visited)
+    print_each_direction(all_pois)

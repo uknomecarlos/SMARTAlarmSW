@@ -27,6 +27,8 @@ class PointOfInterest:
         self.middleLED = 0
         self.buzzer = 0
         self.nextPOI = 0
+        self.nextDirection = 0;
+        self.distance = 0;
 
     # setters
     # sets POI to the left of the current POI
@@ -52,6 +54,14 @@ class PointOfInterest:
     def set_next(self, poi):
         self.nextPOI = poi
 
+    # sets the next direction to follow for the given POI
+    def set_next_direction(self, direction):
+        self.nextDirection = direction
+
+    # sets the distance from the fired alarm
+    def set_distance(self, distance):
+        self.distance = distance
+
     # getters
     # returns POI to the left of current POI
     def get_left(self):
@@ -76,3 +86,11 @@ class PointOfInterest:
     # returns the next POI to follow in a path for the current POI
     def get_next(self):
         return self.nextPOI
+
+    # returns the next direction to follow in a given POI
+    def get_next_direction(self):
+        return self.nextDirection
+
+    # returns the distance from the fired alarm
+    def get_distance(self):
+        return self.distance
