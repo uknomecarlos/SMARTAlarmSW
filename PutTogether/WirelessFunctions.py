@@ -19,11 +19,22 @@ def sendPacket(zb, where, what):
 
 # Cycle through all the alarms and send the proper direction signal
 def signalDirections(zb, all_pois):
-    for poi in all_pois:
-        time.sleep(0.1)    
-        if poi.get_type() != "exit" and poi.get_type() != "wall":
-            sendPacket(zb, poi.get_address(), poi.get_next_direction())
-      
+        print 'length = ', len(all_pois)
+        for i in range(0, len(all_pois)):
+                for poi in all_pois:
+                        if poi.get_distance() == i:
+                                time.sleep(0.005)    
+                                if poi.get_type() != "exit" and poi.get_type() != "wall":
+                                        sendPacket(zb, poi.get_address(), poi.get_next_direction())
+                time.sleep(1)
+                
+# Cycle through all the alarms and send the reset signal
+def signalReset(zb, all_pois):
+        for poi in all_pois:
+                time.sleep(0.1)    
+                if poi.get_type() != "exit" and poi.get_type() != "wall":
+                        sendPacket(zb, poi.get_address(), 'reset')
+                        
 # OK, another thread has caught the packet from the XBee network,
 # put it on a queue, this process has taken it off the queue and
 # passed it to this routine, now we can take it apart and see
@@ -39,8 +50,9 @@ def handlePacket(data, all_pois, visited, zb):
                 print data['rf_data'],'\n'
                 poi = find_alarm_with_address(all_pois, data['source_addr_long'])
                 if(poi != False):
-                    fire_alarm(poi, visited)
-                    print_each_direction(all_pois)
-                    signalDirections(zb, all_pois)
+                        reset_alarms(all_pois, visited)
+                        fire_alarm(poi, visited)
+                        print_each_direction(all_pois)
+                        signalDirections(zb, all_pois)
         else:
                 print 'Unimplemented frame type'

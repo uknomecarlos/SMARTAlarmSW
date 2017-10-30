@@ -153,8 +153,9 @@ def follow_path(poi, my_path, vis):
 def fire_alarm(poi, visited):
     # Marks the current POI as the site of the fire, finds the shortest
     # path from the fire at the current POI
-
+    
     print "Setting off alarm " + str(poi.get_id())
+               
     visited[poi.get_id()] = True
 
     # Find shortest path in each direction of fire
@@ -247,3 +248,13 @@ def find_alarm_with_address(all_pois, address):
         if poi.get_address() == address:
             return poi
     return False        
+
+# reset values for all alarms and visited array
+def reset_alarms(all_pois, visited):
+    for i in range(0, len(visited)):
+        visited[i] = False
+
+    for i in range(0, len(all_pois)):
+        all_pois[i].set_next(0)
+        all_pois[i].set_next_direction(0)
+        all_pois[i].set_distance(0)

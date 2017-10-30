@@ -5,7 +5,18 @@ from WirelessFunctions import *
 import time
 import serial
 import Queue
+import termios, fcntl, sys, os
 
+
+fd = sys.stdin.fileno()
+
+oldterm = termios.tcgetattr(fd)
+newattr = termios.tcgetattr(fd)
+newattr[3] = newattr[3] & ~termios.ICANON & ~termios.ECHO
+termios.tcsetattr(fd, termios.TCSANOW, newattr)
+
+oldflags = fcntl.fcntl(fd, fcntl.F_GETFL)
+fcntl.fcntl(fd, fcntl.F_SETFL, oldflags | os.O_NONBLOCK)
 
 # on the Raspberry Pi the serial port is ttyAMA0
 PORT = '/dev/serial0'
@@ -74,22 +85,32 @@ def test_case1(zb):
     print "Test Case 1: "
     print " "
 
-    while True:
-        try:
-                time.sleep(0.1)
-                if packets.qsize() > 0:
-                        print "got somethin"
-                        # got a packet from recv thread
-                        # See, the receive thread gets them
-                        # puts them on a queue and here is
-                        # where I pick them off to use
-                        newPacket = packets.get_nowait()
-                        # now go dismantle the packet
-                        # and use it.
-                        handlePacket(newPacket, all_pois, visited, zb)
-        except KeyboardInterrupt:
-                break
-
+    try:
+        while True:
+            try:    
+                    time.sleep(0.1)
+                    if packets.qsize() > 0:
+                            print "got somethin"
+                            # got a packet from recv thread
+                            # See, the receive thread gets them
+                            # puts them on a queue and here is
+                            # where I pick them off to use
+                            newPacket = packets.get_nowait()
+                            # now go dismantle the packet
+                            # and use it.
+                            handlePacket(newPacket, all_pois, visited, zb)
+            except KeyboardInterrupt:
+                    break
+            try:
+                c = sys.stdin.read(1)
+                print "Got character", repr(c)
+                if c == 'r':
+                    signalReset(zb, all_pois)
+            except IOError: pass
+    finally:
+        termios.tcsetattr(fd, termios.TCSAFLUSH, oldterm)
+        fcntl.fcntl(fd, fcntl.F_SETFL, oldflags)
+    
     # halt() must be called before closing the serial
     # port in order to ensure proper thread shutdown
     zb.halt()
