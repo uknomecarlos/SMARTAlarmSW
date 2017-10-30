@@ -20,18 +20,19 @@ def sendPacket(zb, where, what):
 # Cycle through all the alarms and send the proper direction signal
 def signalDirections(zb, all_pois):
         print 'length = ', len(all_pois)
-        for i in range(0, len(all_pois)):
+        for i in range(0, len(all_pois)-4):
                 for poi in all_pois:
                         if poi.get_distance() == i:
                                 time.sleep(0.005)    
                                 if poi.get_type() != "exit" and poi.get_type() != "wall":
                                         sendPacket(zb, poi.get_address(), poi.get_next_direction())
                 time.sleep(1)
+                print i
                 
 # Cycle through all the alarms and send the reset signal
 def signalReset(zb, all_pois):
         for poi in all_pois:
-                time.sleep(0.1)    
+                time.sleep(0.005)    
                 if poi.get_type() != "exit" and poi.get_type() != "wall":
                         sendPacket(zb, poi.get_address(), 'reset')
                         
