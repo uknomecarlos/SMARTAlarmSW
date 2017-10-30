@@ -3,7 +3,9 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QMessageBox, QLabel, QDialog
 from custom import Ui_Dialog
-#from main import *
+from main import *
+# from Lshape import *
+# from Tshape import *
 
 
 class window(QMainWindow):
@@ -141,7 +143,11 @@ class window(QMainWindow):
                 btn.setEnabled(False)
             reset.setEnabled(True)
 
-
+            if self.status == "Line":
+                zb = ZigBee(ser, callback=message_received)
+                print 'starting'
+                test_case1(zb)
+                
             print("Monitoring " + self.status + "...")
             status.setText("Monitoring \n" + self.status + "...")
         else:
